@@ -1,0 +1,4 @@
+(library
+ (name ast_to_js)
+ (preprocess (pps ppx_deriving.show))
+ (libraries yojson))

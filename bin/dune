@@ -1,0 +1,4 @@
+(executable
+ (public_name ast-to-js)
+ (name main)
+ (libraries ast_to_js))
