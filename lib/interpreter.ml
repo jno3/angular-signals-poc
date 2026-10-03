@@ -1,2 +1,0 @@
-let parse ast = 
-	"aaaa"

@@ -18,5 +18,5 @@ let () =
 	Arg.parse speclist anon_fun usage_msg;
 	let reader = Ast_to_js.Json_reader.make "/home/j/projetos/angular-compiler-poc/output_final.json" in
 	let json = Ast_to_js.Json_reader.read reader in
-	let node_ast = Ast_to_js.Json_interpreter.interpret json in
-	(ignore (Ast_to_js.Interpreter.parse node_ast))
+	let ast = Ast_to_js.Json_interpreter.node_of_json json in
+	(ignore (Ast_to_js.Generator.compile_node "container", ast))
