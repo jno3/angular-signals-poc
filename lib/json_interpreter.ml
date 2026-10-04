@@ -28,3 +28,6 @@ and node_of_json json =
 		let children = json |> member "children" |> to_list |> List.map node_of_json in
 		Node.Element (tag, children)
 	| _ -> failwith "unexpected node shape"
+
+let generate_node_ast json =
+	json |> to_list |> List.map(fun x -> let node = node_of_json x in Printf.printf "%s\n" (Node.show_node node); node)
