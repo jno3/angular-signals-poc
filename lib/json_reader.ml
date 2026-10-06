@@ -7,7 +7,6 @@ let make file_path = {
 }
 
 let read reader = 
-	(* Yojson.Basic.from_string "{{ a }} and {{ b }}" *)
 	Printf.printf "%s\n" reader.file_path;
 	Yojson.Basic.from_file reader.file_path
 

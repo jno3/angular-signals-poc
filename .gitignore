@@ -7,6 +7,10 @@
 *.cmx
 *.cmxs
 *.cmxa
+/*.js
+/*.html
+resources/*.json
+!runtime.js
 
 # Files containing detailed information about the compilation (generated
 # by `ocamlc`/`ocamlopt` when invoked using the option `-bin-annot`).
