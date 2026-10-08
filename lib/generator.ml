@@ -66,7 +66,6 @@ and compile_expr expr =
 	| Node.MethodCall (meth, args) ->
 		let arg_strings = List.map compile_expr args in
 		let l = Printf.sprintf "ctx.%s(%s)" meth (String.concat ", " arg_strings) in
-		(* Printf.printf "%s" l; *)
 		l
 
 and zip strings exprs = 
