@@ -1,9 +1,11 @@
 import * as ts from "typescript";
 import * as fs from "fs";
 import { parseTemplate } from "@angular/compiler";
+import path from "path";
 
-const filePath = "./codegen-poc/src/app/app.ts";
-const pagesDir = "../"; 
+const filePath = path.join(__dirname, "../codegen-poc/src/app/app.ts");
+const pagesDir = path.join(__dirname, "../page");
+const generatedDir = path.join(__dirname, "../generated");
 
 const sourceText = fs.readFileSync(filePath, "utf8");
 const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true);
@@ -77,9 +79,12 @@ if (found.template === undefined) {
   throw new Error(`No inline template found in ${filePath}`);
 }
 
+
+fs.mkdirSync(generatedDir, { recursive: true });
+fs.mkdirSync(pagesDir, { recursive: true });
 const result = parseTemplate(found.template, "test.html");
-fs.writeFileSync("ast.json", JSON.stringify(result.nodes, null, 2));
-fs.writeFileSync("signals.json", JSON.stringify(signals, null, 2));
+fs.writeFileSync(`${generatedDir}/ast.json`, JSON.stringify(result.nodes, null, 2));
+fs.writeFileSync(`${generatedDir}/signals.json`, JSON.stringify(signals, null, 2));
 
 const ctxTs =
   `import { signal } from './runtime.js';\n` +
@@ -89,8 +94,7 @@ const ctxJs = ts.transpileModule(ctxTs, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
 }).outputText;
 
-fs.mkdirSync(pagesDir, { recursive: true });
-fs.writeFileSync(`../ctx.js`, ctxJs);
+fs.writeFileSync(`${pagesDir}/ctx.js`, ctxJs);
 
 console.log("signals:", signals);
 console.log("template length:", found.template.length);

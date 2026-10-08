@@ -10,7 +10,13 @@
 /*.js
 /*.html
 resources/*.json
-!runtime.js
+*/page/*
+!*/page/runtime.js
+*/generated/*
+
+*/scripts/node_modules
+*/scripts/package*
+
 
 # Files containing detailed information about the compilation (generated
 # by `ocamlc`/`ocamlopt` when invoked using the option `-bin-annot`).

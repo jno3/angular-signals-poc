@@ -32,10 +32,18 @@ let write_file path content =
 		Out_channel.output_string oc content
 	)
 
+let rec create_dir dir = 
+	if not (Sys.file_exists dir) then begin
+		create_dir (Filename.dirname dir);
+		Sys.mkdir dir 0o755
+	end
+
 let write name (creation, update, names) =
+	let dir_path = (Sys.getcwd ()) ^ "/resources/page" in
+	create_dir dir_path;
+	let name = dir_path ^ (Printf.sprintf "/%s" name) in 
 	let js_file = name ^ ".js" in
 	let html_file = name ^ ".html" in
 	let final = js_content creation update names in
-	Printf.printf "%s" final;
 	write_file js_file final;
-	write_file html_file (html_page js_file)
+	write_file html_file (html_page (Filename.basename js_file))

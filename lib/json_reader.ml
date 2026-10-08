@@ -7,7 +7,6 @@ let make file_path = {
 }
 
 let read reader = 
-	Printf.printf "%s\n" reader.file_path;
 	Yojson.Basic.from_file reader.file_path
 
 let to_pretty_string reader = 
