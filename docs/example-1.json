@@ -1,0 +1,408 @@
+[
+  {
+    "name": "h1",
+    "attributes": [],
+    "inputs": [],
+    "outputs": [],
+    "directives": [],
+    "children": [
+      {
+        "value": {
+          "span": {
+            "start": 0,
+            "end": 20
+          },
+          "sourceSpan": {
+            "start": 9,
+            "end": 29
+          },
+          "ast": {
+            "span": {
+              "start": 0,
+              "end": 20
+            },
+            "sourceSpan": {
+              "start": 9,
+              "end": 29
+            },
+            "strings": [
+              "Hello, ",
+              ""
+            ],
+            "expressions": [
+              {
+                "span": {
+                  "start": 10,
+                  "end": 17
+                },
+                "sourceSpan": {
+                  "start": 19,
+                  "end": 26
+                },
+                "receiver": {
+                  "span": {
+                    "start": 10,
+                    "end": 15
+                  },
+                  "sourceSpan": {
+                    "start": 19,
+                    "end": 24
+                  },
+                  "nameSpan": {
+                    "start": 19,
+                    "end": 24
+                  },
+                  "receiver": {
+                    "span": {
+                      "start": 10,
+                      "end": 10
+                    },
+                    "sourceSpan": {
+                      "start": 19,
+                      "end": 19
+                    }
+                  },
+                  "name": "world"
+                },
+                "args": [],
+                "argumentSpan": {
+                  "start": 25,
+                  "end": 25
+                }
+              }
+            ]
+          },
+          "source": "Hello, {{ world() }}",
+          "location": "test.html@1:8",
+          "errors": []
+        },
+        "sourceSpan": {
+          "start": {
+            "file": {
+              "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+              "url": "test.html"
+            },
+            "offset": 9,
+            "line": 1,
+            "col": 8
+          },
+          "end": {
+            "file": {
+              "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+              "url": "test.html"
+            },
+            "offset": 29,
+            "line": 1,
+            "col": 28
+          },
+          "fullStart": {
+            "file": {
+              "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+              "url": "test.html"
+            },
+            "offset": 9,
+            "line": 1,
+            "col": 8
+          },
+          "details": null
+        }
+      }
+    ],
+    "references": [],
+    "isSelfClosing": false,
+    "sourceSpan": {
+      "start": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 5,
+        "line": 1,
+        "col": 4
+      },
+      "end": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 34,
+        "line": 1,
+        "col": 33
+      },
+      "fullStart": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 5,
+        "line": 1,
+        "col": 4
+      },
+      "details": null
+    },
+    "startSourceSpan": {
+      "start": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 5,
+        "line": 1,
+        "col": 4
+      },
+      "end": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 9,
+        "line": 1,
+        "col": 8
+      },
+      "fullStart": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 5,
+        "line": 1,
+        "col": 4
+      },
+      "details": null
+    },
+    "endSourceSpan": {
+      "start": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 29,
+        "line": 1,
+        "col": 28
+      },
+      "end": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 34,
+        "line": 1,
+        "col": 33
+      },
+      "fullStart": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 29,
+        "line": 1,
+        "col": 28
+      },
+      "details": null
+    },
+    "isVoid": false
+  },
+  {
+    "name": "h1",
+    "attributes": [],
+    "inputs": [],
+    "outputs": [],
+    "directives": [],
+    "children": [
+      {
+        "value": {
+          "span": {
+            "start": 0,
+            "end": 19
+          },
+          "sourceSpan": {
+            "start": 43,
+            "end": 62
+          },
+          "ast": {
+            "span": {
+              "start": 0,
+              "end": 19
+            },
+            "sourceSpan": {
+              "start": 43,
+              "end": 62
+            },
+            "strings": [
+              "Hello, ",
+              ""
+            ],
+            "expressions": [
+              {
+                "span": {
+                  "start": 10,
+                  "end": 16
+                },
+                "sourceSpan": {
+                  "start": 53,
+                  "end": 59
+                },
+                "receiver": {
+                  "span": {
+                    "start": 10,
+                    "end": 14
+                  },
+                  "sourceSpan": {
+                    "start": 53,
+                    "end": 57
+                  },
+                  "nameSpan": {
+                    "start": 53,
+                    "end": 57
+                  },
+                  "receiver": {
+                    "span": {
+                      "start": 10,
+                      "end": 10
+                    },
+                    "sourceSpan": {
+                      "start": 53,
+                      "end": 53
+                    }
+                  },
+                  "name": "name"
+                },
+                "args": [],
+                "argumentSpan": {
+                  "start": 58,
+                  "end": 58
+                }
+              }
+            ]
+          },
+          "source": "Hello, {{ name() }}",
+          "location": "test.html@2:8",
+          "errors": []
+        },
+        "sourceSpan": {
+          "start": {
+            "file": {
+              "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+              "url": "test.html"
+            },
+            "offset": 43,
+            "line": 2,
+            "col": 8
+          },
+          "end": {
+            "file": {
+              "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+              "url": "test.html"
+            },
+            "offset": 62,
+            "line": 2,
+            "col": 27
+          },
+          "fullStart": {
+            "file": {
+              "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+              "url": "test.html"
+            },
+            "offset": 43,
+            "line": 2,
+            "col": 8
+          },
+          "details": null
+        }
+      }
+    ],
+    "references": [],
+    "isSelfClosing": false,
+    "sourceSpan": {
+      "start": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 39,
+        "line": 2,
+        "col": 4
+      },
+      "end": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 67,
+        "line": 2,
+        "col": 32
+      },
+      "fullStart": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 39,
+        "line": 2,
+        "col": 4
+      },
+      "details": null
+    },
+    "startSourceSpan": {
+      "start": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 39,
+        "line": 2,
+        "col": 4
+      },
+      "end": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 43,
+        "line": 2,
+        "col": 8
+      },
+      "fullStart": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 39,
+        "line": 2,
+        "col": 4
+      },
+      "details": null
+    },
+    "endSourceSpan": {
+      "start": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 62,
+        "line": 2,
+        "col": 27
+      },
+      "end": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 67,
+        "line": 2,
+        "col": 32
+      },
+      "fullStart": {
+        "file": {
+          "content": "\n    <h1>Hello, {{ world() }}</h1>\n    <h1>Hello, {{ name() }}</h1>\n  ",
+          "url": "test.html"
+        },
+        "offset": 62,
+        "line": 2,
+        "col": 27
+      },
+      "details": null
+    },
+    "isVoid": false
+  }
+]
