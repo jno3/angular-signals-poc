@@ -285,7 +285,9 @@ export function effect(fn) {
 Function `signal` is used inside the generated `ctx.js` since it contains the context for my faux-angular application and `effect` will be used inside `create` block in the generated js file when in `signal mode`.
 
 ### Testing
-Now that we know that our AST interpreter has two modes, `polled mode` and `signal mode`. The former treating the calls inside interpolations as methods and the latter treating them as "our signal" tracked with `effect`, we need to generate test cases to infer what sort of improvement could be brought to the table by using the `signal mode`.
+Our AST interpreter has two modes, `polled mode` and `signal mode`. The former treats the calls inside interpolations as methods, the latter treats them as signals tracked with effect. We need test cases to see what improvement signal mode could bring.
+
+My idea is that in `polled mode` the work done in each write grows with the number of bindings, because every binding is read again on every update. In `signal mode` it should stay constant, because only the effects that depend on the written signal run.
 
 Using the scripts before mentioned, one could run the following from the root of this project:
 ```bash
@@ -304,8 +306,195 @@ Will give me the [signals_10.js](docs/signals_10-example.js) file. Notice how th
 dune exec ast-to-js -- -o polled_10 -s
 ```
 
-I get the [polled_10.js](docs/polled_10-example.js) file. The one that sort of replicates how an
+I get the [polled_10.js](docs/polled_10-example.js) file. The one that tries to replicate how an angular application works from a compiled angular source. Example of the `app.ts` piece generated inside the main.js in our angular `codegen-poc`:
+
+<details>
+<summary>Compiled output for <code>App</code> (excerpt from main.js)</summary>
+
+```js
+// src/app/app.ts
+var App = class _App {
+  s0 = signal(
+    0,
+    ...ngDevMode ? [{ debugName: "s0" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s1 = signal(
+    1,
+    ...ngDevMode ? [{ debugName: "s1" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s2 = signal(
+    2,
+    ...ngDevMode ? [{ debugName: "s2" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s3 = signal(
+    3,
+    ...ngDevMode ? [{ debugName: "s3" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s4 = signal(
+    4,
+    ...ngDevMode ? [{ debugName: "s4" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s5 = signal(
+    5,
+    ...ngDevMode ? [{ debugName: "s5" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s6 = signal(
+    6,
+    ...ngDevMode ? [{ debugName: "s6" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s7 = signal(
+    7,
+    ...ngDevMode ? [{ debugName: "s7" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s8 = signal(
+    8,
+    ...ngDevMode ? [{ debugName: "s8" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  s9 = signal(
+    9,
+    ...ngDevMode ? [{ debugName: "s9" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  static \u0275fac = function App_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _App)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _App, selectors: [["app-root"]], decls: 20, vars: 10, template: function App_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275domElementStart(0, "p");
+      \u0275\u0275text(1);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(2, "p");
+      \u0275\u0275text(3);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(4, "p");
+      \u0275\u0275text(5);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(6, "p");
+      \u0275\u0275text(7);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(8, "p");
+      \u0275\u0275text(9);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(10, "p");
+      \u0275\u0275text(11);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(12, "p");
+      \u0275\u0275text(13);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(14, "p");
+      \u0275\u0275text(15);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(16, "p");
+      \u0275\u0275text(17);
+      \u0275\u0275domElementEnd();
+      \u0275\u0275domElementStart(18, "p");
+      \u0275\u0275text(19);
+      \u0275\u0275domElementEnd();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate(ctx.s0());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s1());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s2());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s3());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s4());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s5());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s6());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s7());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s8());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.s9());
+    }
+  }, encapsulation: 2 });
+};
+```
+
+</details>
+
+<br>
+
+#### bench.html
+
+To test these files we'll use the [bench.html](/resources/page/bench.html) file that will import the `stats` from `runtime.js` and `ctx` from the generated `ctx.js`. It takes two arguments, `page` to point which generated js file we'll be testing (like `?page=polled`) and optional parameters `write` to select a signal for writing onto (like `&write=s0`) and `writes` that sets how many writes to time (like `&writes=1000`). The number of `rounds` is fixed to 5.
+
+It wraps every `signal` in `ctx` with a read counter. Each wrapper does `reads++` right before calling the real `signal`, so we can keep track and still use the `signal`.
+
+Then it imports the generated page and calls `create(app, ctx)` and `update(refs, ctx)`. That is the first render. After that it does two separate things:
+
+1. **Single-write measurement.** It resets `reads`, runs `ctx[target].set(999999)` and then `update(refs, ctx)`. This gives us `reads/write` and `effect runs/write`. It then checks for correctness: the first `<p>` must show `999999`.
+2. **Timing.** It runs 5 rounds, and each round does `writes` cycles of `set` with a new value followed by `update`. A round is one timed batch. We repeat it to get rid of noise and report the median. Every write uses a different value because a signal ignores a `set` with the value it already has.
+<br>
+The results outputed are:
+
+| Result | What it means |
+|--------|---------------|
+| reads/write | The amount of times a read happened for a single write |
+| effect runs/write | The amount of times an `effect` was run for a single write |
+| median of 5 rounds x writes | The median time over 5 rounds for executing the amount of `writes` | 
+| correct | Whether the first `<p>` shows the written value |
 
 
+#### Results
+For generating the test files, I ran the following commands:
+```bash
+npx tsx resources/scripts/gen_scenario.ts N
+npx tsx resources/scripts/analyzer.ts
+dune exec ast-to-js -- -o signal_N
+dune exec ast-to-js -- -o polled_N -s
+```
+And ran my `bench.html` tests for each N before generating the next N signals and so on.
 
-#### Decoding
+These were the results attained:
+
+| N | Mode | reads/write | effect runs/write | median time (ms) | correct |
+|---|------|-------------|-------------------|------------------|---------|
+| 10 | polled | 10 | 0 | 1.5 | true |
+| 10 | signal | 1 | 1 | 0.9 | true |
+| 100 | polled | 100 | 0 | 20.3 | true |
+| 100 | signal | 1 | 1 | 0.8 | true |
+| 1000 | polled | 1000 | 0 | 211.3 | true |
+| 1000 | signal | 1 | 1 | 0.8 | true |
+
+#### Testing it against proper angular
+For the Angular setup we generate the same template with `--counted`:
+```bash
+npx tsx resources/scripts/gen_scenario.ts 10 --counted
+```
+This version wraps every signal with a read counter and adds two buttons. One counts the reads for a single write, the other times the writes. It has to be generated last, because the analyzer cannot read it.
