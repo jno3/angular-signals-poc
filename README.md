@@ -460,8 +460,8 @@ Then it imports the generated page and calls `create(app, ctx)` and `update(refs
 
 1. **Single-write measurement.** It resets `reads`, runs `ctx[target].set(999999)` and then `update(refs, ctx)`. This gives us `reads/write` and `effect runs/write`. It then checks for correctness: the first `<p>` must show `999999`.
 2. **Timing.** It runs 5 rounds, and each round does `writes` cycles of `set` with a new value followed by `update`. A round is one timed batch. We repeat it to get rid of noise and report the median. Every write uses a different value because a signal ignores a `set` with the value it already has.
-<br>
-The results outputed are:
+
+The results are:
 
 | Result | What it means |
 |--------|---------------|
@@ -476,14 +476,26 @@ For generating the test files, I ran the following commands:
 ```bash
 npx tsx resources/scripts/gen_scenario.ts N
 npx tsx resources/scripts/analyzer.ts
-dune exec ast-to-js -- -o signal_N
+dune exec ast-to-js -- -o signals_N
 dune exec ast-to-js -- -o polled_N -s
 ```
-And ran my `bench.html` tests for each N before generating the next N signals and so on.
+And ran my `bench.html` tests for each N before generating the next N signals and so on. The number of `writes` in each round was the default `1000`.
+
+These tests were ran in a Lenovo S145-IWL containing 8GB of RAM running Linux Mint.
+
+| Software | Version |
+|----------|---------|
+| Browser (Firefox) | 154.0 |
+| Node | v24.19.0 |
+| @angular/compiler | 22.2.1 |
+| TypeScript | 5.9.3 |
+| tsx | 4.23.15 |
+| OCaml | 5.4.1 |
+| dune | 3.24.2 |
 
 These were the results attained:
 
-| N | Mode | reads/write | effect runs/write | median time (ms) | correct |
+| N | Mode | reads/write | effect runs/write | median time per 1000 writes (ms) | correct |
 |---|------|-------------|-------------------|------------------|---------|
 | 10 | polled | 10 | 0 | 1.5 | true |
 | 10 | signal | 1 | 1 | 0.9 | true |
@@ -492,9 +504,41 @@ These were the results attained:
 | 1000 | polled | 1000 | 0 | 211.3 | true |
 | 1000 | signal | 1 | 1 | 0.8 | true |
 
+From the tests performed, I could conclude that the advantages to the proposed `signal mode` is that it, in fact, executes as I had described early - whenever there is a write, It runs exactly one write and one effect whereas the `polled mode` does N reads, taking longer to process a single write. The time follows the same pattern where in `polled mode` it grows about 10x for each 10x in N, and signal stays flat at about 0.8-0.9 ms per 1000 writes. The gap widens with N - being roughly 1.7x at N=10, 25x at N=100 and 260x at N=1000.
+
+What we can conclude that the cost of writing in `signal mode` depends on how many bindings depend on the signal, and not on how many bindings the template has. In `polled mode` it depends on the template size. So in this synthetic workload, per-binding effects make the cost of a write constant in the size of the template, while the polled model’s cost grows linearly with it.
+
+#### What can't be attested so far
+All the tests performed are in the best case for the proposed `signal mode` - that is, independent bindings and a single write. These tests do not cover many bindings on one signal, several writes per tick, or setup costs. The `polled mode` not Angular itself. How well it matches will be tested separately. Other limitation is the correctness check that is done for a single `<p>` element. 
+
+
 #### Testing it against proper angular
+The reason why this test exists is for checking `polled mode` against Angular's update block fairly.
+
 For the Angular setup we generate the same template with `--counted`:
 ```bash
-npx tsx resources/scripts/gen_scenario.ts 10 --counted
+npx tsx resources/scripts/gen_scenario.ts N --counted
 ```
-This version wraps every signal with a read counter and adds two buttons. One counts the reads for a single write, the other times the writes. It has to be generated last, because the analyzer cannot read it.
+This version wraps every signal with a read counter and adds two buttons.
+
+- The `Run test` that sets `READS = 0`, writes `s0` and waits for `appRef.whenStable()` and logs `READS`
+- The `Run timer` that does 1000 writes in 5 rounds, in batches of 50 with a `setTimeout` yield between batches. This had to be done because with the Angular version being tested here (`22.2.1`) the default behavior is zoneless and in it many synchronous writes in one event-loop turn throw NG0103, so the timing has to yield between batches. Only the batch is timed, and the median is logged.
+
+To set up these tests, besides replacing the `app.ts` file inside my angular with the previous command, I ran the following from inside the `./resources/codegen-poc` directory:
+
+```bash
+ng build --configuration production
+npx http-server dist/codegen-poc/browser
+```
+
+So running my Angular application with the same N values used in the previous tests I get
+
+| N | reads/write (Angular) | reads/write (polled mode) | median time (ms) |
+|---|-----------------------|---------------------------|------------------|
+| 10 | 10 | 10 | 41 |
+| 100 | 100 | 100 | 69 |
+| 1000 | 1000 | 1000 | 183 |
+
+The reads/write match exactly at every N, which is what we expected from how Angular records dependencies per view: one write re-runs the whole update block. This supports `polled mode` as a model of Angular's update block for this workload. The times are not comparable in absolute terms, since Angular's include its scheduler, so the lower times of `polled mode` do not make it more efficient than Angular, only simpler. What we can say is that in both cases the time grows with the number of bindings.
+
+##### Adverse scenarios
