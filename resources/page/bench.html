@@ -20,6 +20,10 @@
       out.textContent = 'add ?page=<generated file name without .js>';
       throw new Error('missing page parameter');
     }
+    if (!ctx[target]) {
+      out.textContent = `no signal called "${target}" in ctx.js`;
+      throw new Error('unknown write target');
+    }
 
     let reads = 0;
     for (const [key, value] of Object.entries(ctx)) {
@@ -36,6 +40,11 @@
     const refs = create(app, ctx);
     update(refs, ctx);
 
+    const initial = String(ctx[target]());
+    const elements = [...app.children];
+    const before = elements.map((el) => el.textContent);
+    const dependents = before.filter((text) => text === initial).length;
+
     reads = 0;
     const effectsBefore = stats.effectRuns;
     ctx[target].set(999999);
@@ -43,7 +52,9 @@
     const readsPerWrite = reads;
     const effectsPerWrite = stats.effectRuns - effectsBefore;
 
-    const correct = app.firstElementChild?.textContent === '999999';
+    const correct = elements.every(
+      (el, i) => el.textContent === (before[i] === initial ? '999999' : before[i])
+    );
 
     const times = [];
     for (let r = 0; r < rounds; r++) {
@@ -59,6 +70,7 @@
 
     const line =
       `${page}: reads/write=${readsPerWrite}, effect runs/write=${effectsPerWrite}, ` +
+      `bindings on ${target}=${dependents}, ` +
       `median of ${rounds} rounds x ${writes} writes=${median.toFixed(1)} ms, correct=${correct}`;
     out.textContent = line;
     console.log(line);

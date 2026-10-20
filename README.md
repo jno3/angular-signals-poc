@@ -1,6 +1,6 @@
 # angular-signals-poc
 
-## A little study regarding angular signals, how they work and what could be done to improve them
+## A study regarding angular signals, how they work and what could be done to improve them
 
 ### What are Signals?
 
@@ -79,7 +79,7 @@ What does that mean and what exactly is my signal doing here? the nitty-gritty i
 
 `rf` is a render flag that tells the template function which phase is being called. Inside the `function` it is compared using the bitwise AND operation where the block following `if (rf & 1)` means creation mode and the block following `if (rf & 2)` means update mode. What prompted this study is the fact that both the signal and the method are called inside this update block and there isn't much distinction between how they are being called. So the question I had was: What is effectively the difference between a signal call and a method call inside a template?
 
-Well, a method being called inside the update block, like `ɵɵtextInterpolate1("Hello, ", ctx.name());` runs every time the block runs, and Angular knows nothing about what it reads, it can only find whether the result change by calling it and comparing it with the stored value through the method `bindingUpdated` that is called indirectly inside `ɵɵtextInterpolate1`. The chain goes as `ctx.name (value may or may not have changed) -> ɵɵtextInterpolate1 -> interpolation1 -> bindingUpdated`, So:
+Well, a method being called inside the update block, like `ɵɵtextInterpolate1("Hello, ", ctx.name());` runs every time the block runs, and Angular knows nothing about what it reads, it can only find whether the result changes by calling it and comparing it with the stored value through the method `bindingUpdated` that is called indirectly inside `ɵɵtextInterpolate1`. The chain goes as `ctx.name (value may or may not have changed) -> ɵɵtextInterpolate1 -> interpolation1 -> bindingUpdated`, So:
 
 
 ```js
@@ -233,14 +233,14 @@ The generated JS scripts were composed of a context, `ctx.js`, and the create an
 
 The generated HTML file `filename.html` is basically an outlet so one can view the JavaScript through the browser.
 
-Inside the scripts directory, I have two scripts for helping me create and analyze the file with my OCaml AST interpreter. [gen_scenario.ts](resources/scripts/gen_scenario.ts) that takes an argument N and creates an angular application with N signals inside my dummy Angular component [app.ts](resources/codegen-poc/src/app/app.ts) and [analyzer.ts](resources/scripts/analyzer.ts) that reads said file and generates `ctx.js`, the context for my faux-angular and the `ast.json` that is read by my OCaml and, since I'm working from the template out and, inside a template, a method and a signal call don't really differ (`{{ call() }}`), analyzer gets all signals explicitly and writes a `signals.json` that is also read by my OCaml application. If I pass the flag `-s` when executing my OCaml app, the signals noted in the json file are ignored and treated all as if they were methods, otherwise they get treated as signals. So I'll call these different modes as `signal mode` and `polled mode`.
+Inside the scripts directory, I have two scripts for helping me create and analyze the file with my OCaml AST interpreter. [gen_scenario.ts](resources/scripts/gen_scenario.ts) that takes an argument N and creates an angular application with N bindings inside my dummy Angular component [app.ts](resources/codegen-poc/src/app/app.ts) and [analyzer.ts](resources/scripts/analyzer.ts) that reads said file and generates `ctx.js`, the context for my faux-angular and the `ast.json` that is read by my OCaml and, since I'm working from the template out and, inside a template, a method and a signal call don't really differ (`{{ call() }}`), analyzer gets all signals explicitly and writes a `signals.json` that is also read by my OCaml application. If I pass the flag `-s` when executing my OCaml app, the signals noted in the json file are ignored and treated all as if they were methods, otherwise they get treated as signals. So I'll call these different modes as `signal mode` and `polled mode`.
 
 And to answer the question posed in this subsection, my idea for making signals more granular would be relying more on individual updates instead of updating a whole block for a single signal change. I did that inside the [runtime.js](resources/page/runtime.js) file that contains a new definition for method `signal`, a producer, a method that holds a value (initial signal value) and holds a set of subscribers. So instead of emitting the interpolation inside the update block, I wrap it in an `effect` created once in the `create` block. `effect` is the consumer that detects the changes in the `signal` it is attached to and updates the text content of the HTML piece that is directly affected.
 
 ### runtime.js
 `runtime.js` is what keeps the experiment controlled for both modes - later when I'm testing my experiment, the methods called inside interpolation will be interpreted as methods or as signals depending on the `-s` flag, regardless, both will use `runtime.js`.
 
-Defined inside it there are two exported functions:
+`runtime.js` exports `signal`, `effect` and `stats`, defined as:
 
 ```js
 let activeEffect = null;
@@ -294,7 +294,7 @@ Using the scripts before mentioned, one could run the following from the root of
 npx tsx resources/scripts/gen_scenario.ts 10
 npx tsx resources/scripts/analyzer.ts
 ```
-This will generate [ctx.js](docs/ctx-example.js), [ast.json](docs/ast-generated-example.json) and [signals.json](docs/signals-example.json). The AST interpreter, as described before, will use the generated `ast.json` and transform it into a js file. The way it interprets the calls from inside the interpolations will depend entirely of the `-s` flag. So, running the command OCaml application as:
+This will generate [ctx.js](docs/ctx-example.js), [ast.json](docs/ast-generated-example.json) and [signals.json](docs/signals-example.json). The AST interpreter, as described before, will use the generated `ast.json` and transform it into a js file. The way it interprets the calls from inside the interpolations will depend entirely on the `-s` flag. So, running the command OCaml application as:
 
 ```bash
 dune exec ast-to-js -- -o signals_10
@@ -384,63 +384,63 @@ var App = class _App {
       []
     )
   );
-  static \u0275fac = function App_Factory(__ngFactoryType__) {
+  static ɵfac = function App_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _App)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _App, selectors: [["app-root"]], decls: 20, vars: 10, template: function App_Template(rf, ctx) {
+  static ɵcmp = /* @__PURE__ */ ɵɵdefineComponent({ type: _App, selectors: [["app-root"]], decls: 20, vars: 10, template: function App_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275domElementStart(0, "p");
-      \u0275\u0275text(1);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(2, "p");
-      \u0275\u0275text(3);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(4, "p");
-      \u0275\u0275text(5);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(6, "p");
-      \u0275\u0275text(7);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(8, "p");
-      \u0275\u0275text(9);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(10, "p");
-      \u0275\u0275text(11);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(12, "p");
-      \u0275\u0275text(13);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(14, "p");
-      \u0275\u0275text(15);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(16, "p");
-      \u0275\u0275text(17);
-      \u0275\u0275domElementEnd();
-      \u0275\u0275domElementStart(18, "p");
-      \u0275\u0275text(19);
-      \u0275\u0275domElementEnd();
+      ɵɵdomElementStart(0, "p");
+      ɵɵtext(1);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(2, "p");
+      ɵɵtext(3);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(4, "p");
+      ɵɵtext(5);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(6, "p");
+      ɵɵtext(7);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(8, "p");
+      ɵɵtext(9);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(10, "p");
+      ɵɵtext(11);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(12, "p");
+      ɵɵtext(13);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(14, "p");
+      ɵɵtext(15);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(16, "p");
+      ɵɵtext(17);
+      ɵɵdomElementEnd();
+      ɵɵdomElementStart(18, "p");
+      ɵɵtext(19);
+      ɵɵdomElementEnd();
     }
     if (rf & 2) {
-      \u0275\u0275advance();
-      \u0275\u0275textInterpolate(ctx.s0());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s1());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s2());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s3());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s4());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s5());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s6());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s7());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s8());
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.s9());
+      ɵɵadvance();
+      ɵɵtextInterpolate(ctx.s0());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s1());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s2());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s3());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s4());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s5());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s6());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s7());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s8());
+      ɵɵadvance(2);
+      ɵɵtextInterpolate(ctx.s9());
     }
   }, encapsulation: 2 });
 };
@@ -452,13 +452,13 @@ var App = class _App {
 
 #### bench.html
 
-To test these files we'll use the [bench.html](/resources/page/bench.html) file that will import the `stats` from `runtime.js` and `ctx` from the generated `ctx.js`. It takes two arguments, `page` to point which generated js file we'll be testing (like `?page=polled`) and optional parameters `write` to select a signal for writing onto (like `&write=s0`) and `writes` that sets how many writes to time (like `&writes=1000`). The number of `rounds` is fixed to 5.
+To test these files we'll use the [bench.html](/resources/page/bench.html) file that will import the `stats` from `runtime.js` and `ctx` from the generated `ctx.js`. It takes one required argument, `page`, to point which generated js file we'll be testing (like `?page=polled_10`), and two optional parameters, `write` to select a signal for writing onto (like `&write=s0`) and `writes` that sets how many writes to time (like `&writes=9000`). The number of `rounds` is fixed to 5.
 
 It wraps every `signal` in `ctx` with a read counter. Each wrapper does `reads++` right before calling the real `signal`, so we can keep track and still use the `signal`.
 
-Then it imports the generated page and calls `create(app, ctx)` and `update(refs, ctx)`. That is the first render. After that it does two separate things:
+Then it imports the generated page and calls `create(app, ctx)` and `update(refs, ctx)`. That is the first render. Right after it, it takes a snapshot of the text in every element. Every signal starts with a different value, so the elements showing the initial value of the signal being written are the ones that depend on it. After that it does two separate things:
 
-1. **Single-write measurement.** It resets `reads`, runs `ctx[target].set(999999)` and then `update(refs, ctx)`. This gives us `reads/write` and `effect runs/write`. It then checks for correctness: the first `<p>` must show `999999`.
+1. **Single-write measurement.** It resets `reads`, runs `ctx[target].set(999999)` and then `update(refs, ctx)`. This gives us `reads/write` and `effect runs/write`. It then checks for correctness: every element that depends on the signal must show `999999` and every other element must be unchanged.
 2. **Timing.** It runs 5 rounds, and each round does `writes` cycles of `set` with a new value followed by `update`. A round is one timed batch. We repeat it to get rid of noise and report the median. Every write uses a different value because a signal ignores a `set` with the value it already has.
 
 The results are:
@@ -467,8 +467,9 @@ The results are:
 |--------|---------------|
 | reads/write | The amount of times a read happened for a single write |
 | effect runs/write | The amount of times an `effect` was run for a single write |
-| median of 5 rounds x writes | The median time over 5 rounds for executing the amount of `writes` | 
-| correct | Whether the first `<p>` shows the written value |
+| bindings on the target | How many bindings depend on the signal being written (M, when using `--shared=M`) |
+| median of 5 rounds x writes | The median time over 5 rounds for executing the amount of `writes` |
+| correct | Whether the dependents show the written value and the other elements are unchanged |
 
 
 #### Results
@@ -479,9 +480,9 @@ npx tsx resources/scripts/analyzer.ts
 dune exec ast-to-js -- -o signals_N
 dune exec ast-to-js -- -o polled_N -s
 ```
-And ran my `bench.html` tests for each N before generating the next N signals and so on. The number of `writes` in each round was the default `1000`.
+And ran my `bench.html` tests for each N before generating the next N and so on. Each test used `&writes=9000`, and the median of the 5 rounds was divided by 9 to give the time per 1000 writes.
 
-These tests were ran in a Lenovo S145-IWL containing 8GB of RAM running Linux Mint.
+These tests were run in a Lenovo S145-IWL containing 8GB of RAM running Linux Mint.
 
 | Software | Version |
 |----------|---------|
@@ -493,27 +494,25 @@ These tests were ran in a Lenovo S145-IWL containing 8GB of RAM running Linux Mi
 | OCaml | 5.4.1 |
 | dune | 3.24.2 |
 
+To run these tests, Firefox's `privacy.reduceTimerPrecision` and `privacy.resistFingerprinting` were set to `false`.
+
 These were the results attained:
 
 | N | Mode | reads/write | effect runs/write | median time per 1000 writes (ms) | correct |
 |---|------|-------------|-------------------|------------------|---------|
-| 10 | polled | 10 | 0 | 1.5 | true |
-| 10 | signal | 1 | 1 | 0.9 | true |
-| 100 | polled | 100 | 0 | 20.3 | true |
-| 100 | signal | 1 | 1 | 0.8 | true |
-| 1000 | polled | 1000 | 0 | 211.3 | true |
-| 1000 | signal | 1 | 1 | 0.8 | true |
+| 10 | polled | 10 | 0 | 1.4 | true |
+| 10 | signal | 1 | 1 | 0.5 | true |
+| 100 | polled | 100 | 0 | 18.8 | true |
+| 100 | signal | 1 | 1 | 0.5 | true |
+| 1000 | polled | 1000 | 0 | 275.3 | true |
+| 1000 | signal | 1 | 1 | 0.5 | true |
 
-From the tests performed, I could conclude that the advantages to the proposed `signal mode` is that it, in fact, executes as I had described early - whenever there is a write, It runs exactly one write and one effect whereas the `polled mode` does N reads, taking longer to process a single write. The time follows the same pattern where in `polled mode` it grows about 10x for each 10x in N, and signal stays flat at about 0.8-0.9 ms per 1000 writes. The gap widens with N - being roughly 1.7x at N=10, 25x at N=100 and 260x at N=1000.
+From the tests performed with independent bindings, I could conclude that `signal mode` does what I had described: whenever there is a write, it runs exactly one read and one effect run, whereas `polled mode` does N reads and takes longer to process a single write. The time follows the same pattern: in `polled mode` it grows a little faster than linearly (1.4, 18.8 and 275.3 ms, about 13x and 15x for each 10x in N), and `signal mode` stays flat at about 0.5 ms per 1000 writes. The gap widens with N, being roughly 3x at N=10, 40x at N=100 and 550x at N=1000. The `signal mode` times are rounded to one decimal, so these ratios are approximate.
 
-What we can conclude that the cost of writing in `signal mode` depends on how many bindings depend on the signal, and not on how many bindings the template has. In `polled mode` it depends on the template size. So in this synthetic workload, per-binding effects make the cost of a write constant in the size of the template, while the polled model’s cost grows linearly with it.
-
-#### What can't be attested so far
-All the tests performed are in the best case for the proposed `signal mode` - that is, independent bindings and a single write. These tests do not cover many bindings on one signal, several writes per tick, or setup costs. The `polled mode` not Angular itself. How well it matches will be tested separately. Other limitation is the correctness check that is done for a single `<p>` element. 
-
+So the cost of a write in `signal mode` depends on how many bindings depend on the signal, and not on how many bindings the template has. In `polled mode` it depends on the template size. In this synthetic workload, per-binding effects make the cost of a write constant in the size of the template, while the cost in `polled mode` grows with it, a little faster than linearly in these runs. The adverse scenarios below show where this stops being true.
 
 #### Testing it against proper angular
-The reason why this test exists is for checking `polled mode` against Angular's update block fairly.
+This test checks whether `polled mode` is a fair model of Angular's update block.
 
 For the Angular setup we generate the same template with `--counted`:
 ```bash
@@ -533,12 +532,71 @@ npx http-server dist/codegen-poc/browser
 
 So running my Angular application with the same N values used in the previous tests I get
 
-| N | reads/write (Angular) | reads/write (polled mode) | median time (ms) |
+| N | reads/write (Angular) | reads/write (polled mode) | median time per 1000 writes (ms) |
 |---|-----------------------|---------------------------|------------------|
 | 10 | 10 | 10 | 41 |
 | 100 | 100 | 100 | 69 |
 | 1000 | 1000 | 1000 | 183 |
 
-The reads/write match exactly at every N, which is what we expected from how Angular records dependencies per view: one write re-runs the whole update block. This supports `polled mode` as a model of Angular's update block for this workload. The times are not comparable in absolute terms, since Angular's include its scheduler, so the lower times of `polled mode` do not make it more efficient than Angular, only simpler. What we can say is that in both cases the time grows with the number of bindings.
+The reads/write match exactly at every N, which is what we expected from how Angular records dependencies per view: one write re-runs the whole update block. This supports `polled mode` as a model of Angular's update block for this workload. The times are not comparable in absolute terms, since Angular's include its scheduler: `polled mode` is faster at N=10 and N=100 but slower at N=1000 (275.3 against 183 ms), so I draw no conclusion about which one is more efficient. What we can say is that in both cases the time grows with the number of bindings.
 
-##### Adverse scenarios
+#### Adverse scenarios
+So far we've been testing on a single write using a single bound interpolation from within our template. That is the best case scenario for the `signal mode`. It works because a single write requires a single read using our effects. What if there are multiple bindings in our template to a single signal? 
+
+To execute these tests, we'll add a new flag in our `gen_scenario.ts` script to interpolate the same signal multiple times, one signal with many effects bound to it for writing purposes. The flag is `shared`. So, to generate our new templates with multiples bindings per signal:
+
+```bash
+npx tsx resources/scripts/gen_scenario.ts N --shared=M # where N is the number of bindings and M is how many of them read signal s0.
+```
+
+Example of a template with 5 bindings, 3 of them reading `s0` (`--shared=3`). The independent bindings keep their own index:
+
+```html
+<p>{{ s0() }}</p>
+<p>{{ s0() }}</p>
+<p>{{ s0() }}</p>
+<p>{{ s3() }}</p>
+<p>{{ s4() }}</p>
+```
+
+So running the same tests as before, now with shared:
+
+| N | M | Mode | reads/write | effect runs/write | median time per 1000 writes (ms) | correct |
+|---|---|------|-------------|-------------------|----------------------------------|---------|
+| 10 | 3 | signal | 3 | 3 | 1.0 | true |
+| 10 | 3 | polled | 10 | 0 | 1.7 | true |
+| 10 | 6 | signal | 6 | 6 | 1.8 | true |
+| 10 | 6 | polled | 10 | 0 | 2.0 | true |
+| 10 | 9 | signal | 9 | 9 | 2.7 | true |
+| **10** | **9** | **polled** | **10** | **0** | **2.5** | **true** |
+| 100 | 30 | signal | 30 | 30 | 8.8 | true |
+| 100 | 30 | polled | 100 | 0 | 20.0 | true |
+| 100 | 60 | signal | 60 | 60 | 18.0 | true |
+| 100 | 60 | polled | 100 | 0 | 20.3 | true |
+| 100 | 90 | signal | 90 | 90 | 28.1 | true |
+| **100** | **90** | **polled** | **100** | **0** | **20.4** | **true** |
+| 1000 | 300 | signal | 300 | 300 | 107.3 | true |
+| 1000 | 300 | polled | 1000 | 0 | 271.5 | true |
+| 1000 | 600 | signal | 600 | 600 | 211.3 | true |
+| 1000 | 600 | polled | 1000 | 0 | 277.9 | true |
+| 1000 | 900 | signal | 900 | 900 | 333.2 | true |
+| **1000** | **900** | **polled** | **1000** | **0** | **282.9** | **true** |
+
+Bold marks the cases where polled mode was faster than signal mode.
+
+Signal mode wins when few of the bindings share the written signal and loses when most of them do. With 30% of the bindings on `s0`, signal mode is about 2.3x faster at N=100 and 2.5x faster at N=1000. At 60% it is still ahead, by 13% at N=100 and 32% at N=1000. At 90% it is slower, by 38% at N=100 and 18% at N=1000. Interpolating linearly between the 60% and 90% points puts the break-even at about 67% of the bindings at N=100 and 77% at N=1000. N=10 follows the same pattern with smaller margins (1.7x faster at 30%, 11% faster at 60%, 8% slower at 90%, break-even at about 77%). With only three points per N, these are rough estimates.
+
+The per-binding costs explain the crossover. Polled mode costs about 0.2 µs per binding at N=100 and 0.28 µs at N=1000 (its time divided by N). An effect run costs about 0.3 µs at N=100 and 0.36 µs at N=1000 (signal time divided by M). Signal mode saves the check on the N-M bindings that did not change, but pays more for each of the M that did. So the break-even is at M/N ≈ polled cost per binding / effect cost per run, which gives about 67% and 77%, in line with the interpolation. These costs are derived from timings rounded to one decimal, and the polled figure averages the DOM writes of the M changed bindings into every binding, so treat them as estimates.
+
+#### What can't be attested so far
+The tests cover independent bindings and bindings that share one signal, always with a single write at a time. They do not cover several writes per tick, setup costs, a realistic template or full correctness. Some limits to keep in mind:
+
+- `polled mode` is a model of Angular's update block, not Angular itself. The reads match, but the times can't be compared, since Angular's include its scheduler.
+- My `signal mode` runs its effects immediately and never batches them. Angular schedules a tick and batches writes, so several writes in one tick would cost it a single pass.
+- The correctness check looks at the elements that depend on the written signal and at the others being unchanged, but it can't catch a binding that was wired to the wrong signal from the start.
+
+## Conclusion
+Signal-aware code generation does less work than the polled model when bindings read independent signals. Reads per write drop from N to the number of bindings that depend on the written signal, and the gap in time grows with N. It stops paying off when most of the bindings read the same signal: beyond roughly two thirds to three quarters of them, the per-binding effects cost more than the checks they replace. This suggests that per-binding granularity is not always the best choice. Grouping bindings that read the same set of signals into one effect would avoid the crossover, but I have not tested it. The limits listed above still apply: single writes, no batching, and a model of Angular's update block rather than Angular itself.
+
+## Phase 2
+The question for the next phase is whether the same transformation can be done inside Angular's own template compiler, and whether the generated code shows the same savings on Angular's runtime. The plan is to add a phase to the compiler's template pipeline that moves signal-reading interpolations out of the update block, together with a runtime instruction that updates them when the signal changes. I would then repeat the same scenarios (independent bindings, shared signal) and compare reads per write and time per write against the unmodified compiler.

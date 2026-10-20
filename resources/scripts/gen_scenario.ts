@@ -4,13 +4,22 @@ import path from "path";
 const args = process.argv.slice(2);
 const counted = args.includes("--counted");
 const n = Number(args.find((a) => !a.startsWith("--")) ?? 100);
+const sharedArg = args.find((a) => a.startsWith("--shared="));
+const shared = sharedArg ? Number(sharedArg.split("=")[1]) : 0;
 
-const bindings = Array.from({ length: n }, (_, i) => `    <p>{{ s${i}() }}</p>`).join("\n");
+if (!Number.isInteger(shared) || shared < 0 || shared > n) {
+  throw new Error(`--shared must be an integer between 0 and ${n}`);
+}
+
+const signalOf = (i: number) => (i < shared ? 0 : i);
+const bindings = Array.from({ length: n }, (_, i) => `    <p>{{ s${signalOf(i)}() }}</p>`).join("\n");
+
+const signalIds = [...new Set(Array.from({ length: n }, (_, i) => signalOf(i)))];
 
 let app: string;
 
 if (!counted) {
-  const fields = Array.from({ length: n }, (_, i) => `  readonly s${i} = signal(${i});`).join("\n");
+  const fields = signalIds.map((i) => `  readonly s${i} = signal(${i});`).join("\n");
 
   app = `import { Component, signal } from '@angular/core';
 
@@ -35,7 +44,7 @@ function counted<T>(s: WritableSignal<T>) {
 
   const buttonTest = `    <button (click)="test()">Run test</button>\n`;
   const buttonTime = `    <button (click)="time()">Run timer</button>\n`
-  const fields = Array.from({ length: n }, (_, i) => `  readonly s${i} = counted(signal(${i}));`).join("\n");
+  const fields = signalIds.map((i) => `  readonly s${i} = counted(signal(${i}));`).join("\n");
 
   const testMethod = `  async test() {
     READS = 0;
@@ -86,4 +95,5 @@ ${timeMethod}
 const targetPath = path.join(__dirname, "../codegen-poc/src/app/app.ts");
 fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 fs.writeFileSync(targetPath, app);
-console.log(`wrote app.ts (${counted ? "counted" : "plain"}) with ${n} independent signal bindings`);
+const layout = shared > 1 ? `${shared} bindings on s0, ${n - shared} independent` : "all independent";
+console.log(`wrote app.ts (${counted ? "counted" : "plain"}) with ${n} bindings (${layout})`);
